@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    tools:context="com.ihs.demo.message_2012010981.ChatActivity">
+
+    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/receiver_text" />
+    <TextView
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/contactInfo"/>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="#0000"
+        android:id="@+id/list_view"
+        android:layout_weight="1"></ListView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@drawable/"/>-->
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/chat_message_default_image_send"
+            android:id="@+id/btn_photo_send"/>
+
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/chat_show_multimedia_bt"
+            android:id="@+id/btn_camera_send"/>
+
+        <EditText
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:gravity="left"
+            android:hint="Text Message"
+            android:id="@+id/text_msg"/>
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/chat_select_send_text_bt"
+            android:id="@+id/btn_send"/>
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/chat_select_send_audio_bt"
+            android:id="@+id/btn_audio_send"/>
+
+
+    </LinearLayout>
+
+
+
+</LinearLayout>
