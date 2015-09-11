@@ -64,7 +64,7 @@ import android.os.Environment;
 
 public class ChatActivity extends Activity implements HSMessageChangeListener, View.OnClickListener, HSMessageManager.SendMessageCallback, MediaPlayer.OnCompletionListener {
     String my_mid;
-    TextView textView;
+//    TextView textView;
     String mid;
     String name;
     ListView listView;
@@ -86,28 +86,26 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
 
     public void reset() {
         ArrayList<HSBaseMessage> ordMessages = (ArrayList<HSBaseMessage>) HSMessageManager.getInstance().queryMessages(mid, 0, -1).getMessages();
-//        messages = new ArrayList<>();
         chatAdapter.getMsg().clear();
         for (int i = (ordMessages.size()-1); i >= 0; i--) {
             chatAdapter.addMsg(ordMessages.get(i));
         }
         chatAdapter.notifyDataSetChanged();
-        listView.setSelection(listView.getAdapter().getCount() - 1);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        textView = (TextView)findViewById(R.id.receiver_text);
-        textView.setText("");
         TextView textView1 = (TextView)findViewById(R.id.contactInfo);
+        //显示联系人信息
         String [] contactInfos = (String [])getIntent().getExtras().get("contactInfo");
-        textView1.setText(contactInfos[0] + contactInfos[1]);
+        textView1.setText("  " + contactInfos[0] + "  " + contactInfos[1]);
         name = contactInfos[0];
         mid = contactInfos[1];
         my_mid = HSAccountManager.getInstance().getMainAccount().getMID();
         HSMessageManager.getInstance().addListener(this, new Handler());
         HSMessageManager.getInstance().markRead(mid);
+        //从数据库取出与这人相关信息
         ArrayList<HSBaseMessage> ordMessages = (ArrayList<HSBaseMessage>) HSMessageManager.getInstance().queryMessages(mid, 0, -1).getMessages();
         messages = new ArrayList<>();
         for (int i = (ordMessages.size()-1); i >= 0; i--) {
@@ -115,6 +113,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
         }
 
         listView = (ListView)findViewById(R.id.list_view);
+        //点击语音播放、图片显示大图
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -123,10 +122,11 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                     case TEXT:
                         break;
                     case AUDIO:
-                        chatAdapter.startAnimation();
+//                        chatAdapter.startAnimation();
                         MediaPlayer mPlayer = new MediaPlayer();
                         try{
-                            mPlayer.setDataSource(((HSAudioMessage)hsBaseMessage).getAudioFilePath());
+                            HSAudioMessage hsAudioMessage = (HSAudioMessage)hsBaseMessage;
+                            mPlayer.setDataSource(hsAudioMessage.getAudioFilePath());
                             mPlayer.prepare();
                             mPlayer.start();
                             mPlayer.setOnCompletionListener(ChatActivity.this);
@@ -148,10 +148,11 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 }
             }
         });
+        //长按信息删除
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(ChatActivity.this, "delete", Toast.LENGTH_LONG).show();
+                Toast.makeText(ChatActivity.this, "delete", Toast.LENGTH_SHORT).show();
                 List<HSBaseMessage> deleteMsg = new ArrayList<>();
                 deleteMsg.add((HSBaseMessage) listView.getAdapter().getItem(position));
                 HSMessageManager.getInstance().deleteMessages(deleteMsg);
@@ -161,6 +162,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
             }
         });
 
+        //根据数据库信息构造adaper并与listView相关联
         chatAdapter = new ChatAdapter(this, messages, my_mid);
         listView.setAdapter(chatAdapter);
 //        reset();
@@ -175,6 +177,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
         btnPhotoSend.setOnClickListener(this);
         btnCameraSend.setOnClickListener(this);
 
+        //长按语音发送键响应
         AudioFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         AudioFileName += "/audiorecordtest.3gp";
         btnAudioSend.setOnTouchListener(new View.OnTouchListener() {
@@ -186,7 +189,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                         toastSpeaking.cancel();
                     toastSpeaking = Toast.makeText(getApplicationContext(),
                             "讲话结束", Toast.LENGTH_SHORT);
-                    toastSpeaking.setGravity(Gravity.CENTER, 0, 0);
+//                    toastSpeaking.setGravity(Gravity.CENTER, 0, 0);
                     toastSpeaking.show();
 
                     mRecorder.stop();
@@ -199,7 +202,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     toastSpeaking = Toast.makeText(getApplicationContext(),
                             "正在讲话", Toast.LENGTH_SHORT);
-                    toastSpeaking.setGravity(Gravity.CENTER, 0, 0);
+//                    toastSpeaking.setGravity(Gravity.CENTER, 0, 0);
                     toastSpeaking.show();
 
                     mRecorder = new MediaRecorder();
@@ -217,21 +220,20 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 return false;
             }
         });
-//        HashMap<String, String> map = new HashMap<String, String>();
-//        map.put("left", "fuck");
-//        map.put("right", "");
-//        listItem.add(map);
-//        listView.setAdapter(adapter);
+
+
+//      从非通知中心界面进入，要取消通知
         NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         int ID = Integer.parseInt(mid);
         notificationManager.cancel(ID);
     }
 
+    //发送文字信息
     public void textSend(String msg) {
         HSBaseMessage sendMsg = new HSTextMessage(mid, msg);
         HSMessageManager.getInstance().send(sendMsg, this, new Handler());
     }
-
+    //发送图片信息
     public void imageSend(String to, String path) {
         HSMessageManager.getInstance().send(new HSImageMessage(to, path), new HSMessageManager.SendMessageCallback() {
             @Override
@@ -240,7 +242,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
             }
         }, new Handler());
     }
-
+    //发送语音信息
     public void audioSend(String toMid, String fileName, double duration) {
         HSMessageManager.getInstance().send(new HSAudioMessage(toMid, fileName, duration), new HSMessageManager.SendMessageCallback() {
             @Override
@@ -271,9 +273,11 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
         return super.onOptionsItemSelected(item);
     }
 
+    //有消息改变，刷新聊天窗口
     @Override
     public void onMessageChanged(HSMessageChangeType changeType, List<HSBaseMessage> messages) {
         reset();
+        listView.setSelection(listView.getAdapter().getCount() - 1);
     }
 
     @Override
@@ -308,9 +312,11 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
         super.onDestroy();
     }
 
+    //点击事件响应
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
+            //文字消息发送
             case R.id.btn_send:
                 String msg = textMsg.getText().toString();
                 if (msg.equals(""))
@@ -319,6 +325,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 textMsg.setText("");
 //                Toast.makeText(this, "fuck", Toast.LENGTH_LONG).show();
                 break;
+            //打开照片库
             case R.id.btn_photo_send:
                 outputImage = new File(Environment.getExternalStorageDirectory(),"output_image.jpg");
                 try {
@@ -337,6 +344,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 startActivityForResult(intent, CROP_PHOTO);
                 break;
+            //打开摄像头
             case R.id.btn_camera_send:
                 outputImage = new File(Environment.getExternalStorageDirectory(),"output_image.jpg");
                 try {
@@ -354,7 +362,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 break;
         }
     }
-
+    //拍照或者调用相册数据
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -366,7 +374,6 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
 
                 Bitmap bm = null;
                 ContentResolver resolver = getContentResolver();
-                //try {
                 Uri originalUri = data.getData();        //获得图片的uri
                 String[] proj = {MediaStore.Images.Media.DATA};
                 Cursor cursor = managedQuery(originalUri, proj, null, null, null);
@@ -374,11 +381,7 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
                 cursor.moveToFirst();
                 String path = cursor.getString(column_index);
                 imageSend(mid, path);
-                //}catch (IOException e) {
-//
-                //                  Log.e(TAG,e.toString());
 
-                //            }
                 break;
         }
     }
@@ -388,9 +391,10 @@ public class ChatActivity extends Activity implements HSMessageChangeListener, V
 
     }
 
+    //语音播放完的响应
     @Override
     public void onCompletion(MediaPlayer mp) {
-        chatAdapter.stopAnimation();
-        chatAdapter.notifyDataSetChanged();
+        Toast.makeText(this, "播放完毕", Toast.LENGTH_SHORT).show();
+//        chatAdapter.stopAnimation();
     }
 }

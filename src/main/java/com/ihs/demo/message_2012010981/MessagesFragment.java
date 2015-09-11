@@ -45,6 +45,7 @@ public class MessagesFragment extends Fragment implements HSMessageChangeListene
         adapter = new MessageAdapter(this.getActivity(), R.layout.cell_item_contact, contacts);
         listView.setAdapter(adapter);
 
+        //点击聊天
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -64,6 +65,7 @@ public class MessagesFragment extends Fragment implements HSMessageChangeListene
                 }
             }
         });
+        //长按删除与该联系人信息
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {

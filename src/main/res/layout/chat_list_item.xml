@@ -14,13 +14,26 @@
             android:layout_gravity="center"
             android:id="@+id/left_view"
             android:background="@drawable/chat_message_receive_pop_bg"
-            android:textSize="30dp"/>
-        <ImageView
+            android:textSize="25dp"/>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/left_audio_view"
-            android:background="@drawable/chat_receive_audio_play"/>
+            android:orientation="horizontal"
+            android:id="@+id/left_layout_audio_view">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23dp"
+                android:id="@+id/left_audio_text"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:id="@+id/left_audio_view"
+                android:background="@drawable/chat_receive_audio_play"/>
+
+        </LinearLayout>
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -46,13 +59,27 @@
             android:layout_gravity="center"
             android:id="@+id/right_view"
             android:background="@drawable/chat_message_send_pop_bg"
-            android:textSize="30dp"/>
-        <ImageView
+            android:textSize="25dp"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:id="@+id/right_audio_view"
-            android:background="@drawable/chat_send_audio_play"/>
+            android:orientation="horizontal"
+            android:id="@+id/right_layout_audio_view">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:id="@+id/right_audio_view"
+                android:background="@drawable/chat_send_audio_play"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:textSize="23dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/right_audio_text"/>
+        </LinearLayout>
+
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

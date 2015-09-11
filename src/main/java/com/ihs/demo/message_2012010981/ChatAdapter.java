@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ihs.message_2012010981.R;
+import com.ihs.message_2012010981.types.HSAudioMessage;
 import com.ihs.message_2012010981.types.HSBaseMessage;
 import com.ihs.message_2012010981.types.HSImageMessage;
 import com.ihs.message_2012010981.types.HSMessageType;
@@ -37,7 +38,7 @@ public class ChatAdapter extends BaseAdapter{
     private String my_mid;
     private LayoutInflater mInflater;
     private final String sending = "[sending]", sent = "[Sent]", failed = "[failed]";
-    private boolean animation;
+//    private ArrayList<boolean> animation;
 
 
     public ChatAdapter(Context context, ArrayList<HSBaseMessage> messages, String my_mid) {
@@ -45,11 +46,8 @@ public class ChatAdapter extends BaseAdapter{
         this.context = context;
         this.my_mid = my_mid;
         mInflater = LayoutInflater.from(context);
+//        animation = new ArrayList<>();
     }
-
-    public void startAnimation() { animation = true; }
-
-    public void stopAnimation() { animation = false; }
 
     public void setMsg(ArrayList<HSBaseMessage> msg) {
         this.messages = msg;
@@ -93,11 +91,15 @@ public class ChatAdapter extends BaseAdapter{
             viewHolder.leftMsgStatus = (TextView)view.findViewById(R.id.left_view_status);
             viewHolder.leftImage = (ImageView)view.findViewById(R.id.left_image_view);
             viewHolder.leftAudio = (ImageView)view.findViewById(R.id.left_audio_view);
+            viewHolder.leftLayoutAudio = (LinearLayout)view.findViewById(R.id.left_layout_audio_view);
+            viewHolder.leftAudioText = (TextView)view.findViewById(R.id.left_audio_text);
 
             viewHolder.rightMsg = (TextView)view.findViewById(R.id.right_view);
             viewHolder.rightMsgStatus = (TextView)view.findViewById(R.id.right_view_status);
             viewHolder.rightImage = (ImageView)view.findViewById(R.id.right_image_view);
             viewHolder.rightAudio = (ImageView)view.findViewById(R.id.right_audio_view);
+            viewHolder.rightLayoutAudio = (LinearLayout)view.findViewById(R.id.right_layout_audio_view);
+            viewHolder.rightAudioText = (TextView)view.findViewById(R.id.right_audio_text);
 
             view.setTag(viewHolder);
         } else {
@@ -110,12 +112,17 @@ public class ChatAdapter extends BaseAdapter{
         TextView textView;
         ImageView imageView;
         ImageView audioView;
+        LinearLayout layoutAudio;
+        TextView audioText;
         if (isSend == 0) {
             viewHolder.rightLayout.setVisibility(View.VISIBLE);
             viewHolder.leftLayout.setVisibility(View.GONE);
             textView = viewHolder.rightMsg;
             imageView = viewHolder.rightImage;
             audioView = viewHolder.rightAudio;
+            audioText = viewHolder.rightAudioText;
+            layoutAudio = viewHolder.rightLayoutAudio;
+            //在发送方显示发送中、送达、发送失败
             String suffix = "";
             switch (message.getStatus()) {
                 case SENDING:
@@ -135,44 +142,60 @@ public class ChatAdapter extends BaseAdapter{
             textView = viewHolder.leftMsg;
             imageView = viewHolder.leftImage;
             audioView = viewHolder.leftAudio;
+            audioText = viewHolder.leftAudioText;
+            layoutAudio = viewHolder.leftLayoutAudio;
             viewHolder.leftMsgStatus.setText(msgTime);
         }
 
+        //不同类型信息显示不同内容
         switch (message.getType()) {
             case TEXT:
                 textView.setVisibility(View.VISIBLE);
-                audioView.setVisibility(View.GONE);
+                layoutAudio.setVisibility(View.GONE);
+//                audioView.setVisibility(View.GONE);
+
                 imageView.setVisibility(View.GONE);
 
                 textView.setText(((HSTextMessage) message).getText());
                 break;
             case AUDIO:
                 textView.setVisibility(View.GONE);
-                audioView.setVisibility(View.VISIBLE);
+//                audioView.setVisibility(View.VISIBLE);
+                layoutAudio.setVisibility(View.VISIBLE);
                 imageView.setVisibility(View.GONE);
-                if (animation) {
-                    AnimationDrawable mAnimationDrawable = (AnimationDrawable) audioView.getBackground();
-                    mAnimationDrawable.start();
-                }
-                else {
-                    AnimationDrawable mAnimationDrawable = (AnimationDrawable) audioView.getBackground();
-                    mAnimationDrawable.stop();
-                }
-                textView.setText("Audio Message");
+//                if (animation.get(position)) {
+//                    AnimationDrawable mAnimationDrawable = (AnimationDrawable) audioView.getBackground();
+//                    mAnimationDrawable.start();
+//                }
+//                else {
+//                    AnimationDrawable mAnimationDrawable = (AnimationDrawable) audioView.getBackground();
+//                    mAnimationDrawable.stop();
+//                }
+//                textView.setText("Audio Message");
+
+                AnimationDrawable mAnimationDrawable = (AnimationDrawable) audioView.getBackground();
+                mAnimationDrawable.stop();
+                double time = ((HSAudioMessage)message).getDuration();
+                audioText.setText("[" + new Double(time).toString() + "]");
                 break;
             case IMAGE:
                 textView.setVisibility(View.GONE);
-                audioView.setVisibility(View.GONE);
+                layoutAudio.setVisibility(View.GONE);
                 imageView.setVisibility(View.VISIBLE);
-
                 HSImageMessage imageMsg = (HSImageMessage)message;
                 Bitmap bitmap = getLocalBitmap(imageMsg.getThumbnailFilePath());
                 imageView.setImageBitmap(bitmap);
                 break;
             case LOCATION:
-                textView.setText("Unsupport Msg Type");
+                textView.setVisibility(View.VISIBLE);
+                layoutAudio.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
+                textView.setText("Location Msg Type");
                 break;
             default:
+                textView.setVisibility(View.VISIBLE);
+                layoutAudio.setVisibility(View.GONE);
+                imageView.setVisibility(View.GONE);
                 textView.setText("Unsupport Msg Type");
                 break;
         }
@@ -189,6 +212,7 @@ public class ChatAdapter extends BaseAdapter{
         }
     }
     class ViewHolder {
+        //左右布局对应收到和发送的消息
         LinearLayout leftLayout;
         LinearLayout rightLayout;
         TextView leftMsg;
@@ -199,6 +223,10 @@ public class ChatAdapter extends BaseAdapter{
         ImageView leftImage;
         ImageView rightAudio;
         ImageView leftAudio;
+        LinearLayout leftLayoutAudio;
+        LinearLayout rightLayoutAudio;
+        TextView leftAudioText;
+        TextView rightAudioText;
     }
 
 

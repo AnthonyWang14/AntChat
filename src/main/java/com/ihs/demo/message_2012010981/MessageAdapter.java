@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by anthony on 9/6/15.
  */
-
+//Message界面的adapter
 public class MessageAdapter extends ArrayAdapter<Contact> {
 
     private List<Contact> contacts;
@@ -35,11 +35,14 @@ public class MessageAdapter extends ArrayAdapter<Contact> {
     DisplayImageOptions options;
 
     private class ViewHolder {
+        //头像
         ImageView avatarImageView;
+        //用户名和最后一条消息时间
         TextView titleTextView;
+        //未读消息数目和最后一条消息概要
         TextView detailTextView;
     }
-
+    //按照时间戳来排序
     public void sortContact() {
         Collections.sort(contacts, new ComparatorDate());
     }
@@ -115,6 +118,7 @@ public class MessageAdapter extends ArrayAdapter<Contact> {
                 break;
         }
 
+        //有未读消息显示红色字
         if (unRead > 0) {
             lastStr = "[Unread]" + lastStr;
             holder.detailTextView.setTextColor(Color.RED);

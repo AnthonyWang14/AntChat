@@ -32,6 +32,7 @@ import com.ihs.message_2012010981.types.HSTextMessage;
 
 import org.json.JSONObject;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends HSActionBarActivity implements HSMessageChangeListener {
@@ -137,44 +138,53 @@ public class MainActivity extends HSActionBarActivity implements HSMessageChange
         if (changeType == HSMessageChangeType.ADDED) {
             for (HSBaseMessage message : messages) {
                 if (!my_mid.equals(message.getFrom())) {
-                    MediaPlayer player = MediaPlayer.create(this,R.raw.message_ringtone_received);
+                    //收到信息的提醒
+                    MediaPlayer player = MediaPlayer.create(this, R.raw.message_ringtone_received);
                     player.start();
-                    if (HSSessionMgr.getTopActivity()==null) {
+                    //通知中心界面
+                    if (HSSessionMgr.getTopActivity() == null) {
                         Notification notification = new Notification();
                         notification.icon = R.drawable.notification_icon;
                         String nfStr = "";
-                        String name = FriendManager.getInstance().getFriend(message.getFrom()).getName();
                         String mid = message.getFrom();
-                        int unRead = HSMessageManager.getInstance().queryUnreadCount(mid);
-                        nfStr = name + ": ";
-                        switch (message.getType()) {
-                            case TEXT:
-                                nfStr += ((HSTextMessage)message).getText();
-                                break;
-                            case AUDIO:
-                                nfStr += "[Audio Message]";
-                                break;
-                            case IMAGE:
-                                nfStr += "[Image Message]";
-                                break;
-                            case LOCATION:
-                                nfStr += "[Location Message]";
-                                break;
-                            default:
-                                nfStr += "[Unknown Type Message]";
+                        if (FriendManager.getInstance().getFriend(mid)!=null) {
+                            String name = FriendManager.getInstance().getFriend(mid).getName();
+                            int unRead = HSMessageManager.getInstance().queryUnreadCount(mid);
+                            nfStr = name + ": ";
+                            switch (message.getType()) {
+                                case TEXT:
+                                    nfStr += ((HSTextMessage) message).getText();
+                                    break;
+                                case AUDIO:
+                                    nfStr += "[Audio Message]";
+                                    break;
+                                case IMAGE:
+                                    nfStr += "[Image Message]";
+                                    break;
+                                case LOCATION:
+                                    nfStr += "[Location Message]";
+                                    break;
+                                default:
+                                    nfStr += "[Unknown Type Message]";
+                            }
+                            notification.tickerText = nfStr;
+                            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+                            Intent intent = new Intent(this, ChatActivity.class);
+                            String data[] = new String[]{name, mid};
+                            intent.putExtra("contactInfo", data);
+                            int ID = Integer.parseInt(mid);
+                            //每个用户都有不同的数字ID
+                            PendingIntent pd = PendingIntent.getActivity(this, ID, intent, 0);
+                            if (unRead > 1) {
+                                notification.setLatestEventInfo(this, unRead + " new messages", nfStr, pd);
+                            }
+                            else {
+                                notification.setLatestEventInfo(this, unRead + " new message", nfStr, pd);
+                            }
+                            nm.notify(ID, notification);
                         }
-//                        notification.tickerText = nfStr;
-                        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-                        Intent intent = new Intent(this, ChatActivity.class);
-                        String data[] = new String[]{name, mid};
-                        intent.putExtra("contactInfo", data);
-                        PendingIntent pd = PendingIntent.getActivity(this, 0, intent, 0);
-                        notification.setLatestEventInfo(this, unRead + " new messages", nfStr, pd);
-                        int ID = Integer.parseInt(mid);
-                        nm.notify(ID, notification);
                     }
-                }
-                else {
+                } else {
                     MediaPlayer player = MediaPlayer.create(this, R.raw.message_ringtone_sent);
                     player.start();
                 }

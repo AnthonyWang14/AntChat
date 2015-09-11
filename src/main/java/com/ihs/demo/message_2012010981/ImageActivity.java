@@ -17,6 +17,7 @@ import com.ihs.message_2012010981.R;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+//用来全屏显示图片信息
 public class ImageActivity extends Activity {
 
     ImageView imageView;
